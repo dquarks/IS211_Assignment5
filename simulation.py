@@ -89,6 +89,7 @@ def simulateManyServers(input_file, server_num):
     file_data           = []
     requests_per_minute = 10
     simulation_run_time = 10000
+    instance_time       = [0 for i in range(server_num)]
     wait_times          = [[] for i in range(server_num)]
     server_instances    = [Server(requests_per_minute) for i in range(server_num)]
     queue_instances     = [Queue() for i in range(server_num)]
@@ -110,11 +111,12 @@ def simulateManyServers(input_file, server_num):
 
         if (not server_instances[i].busy()) and (not queue_instances[i].is_empty()):
             new_request = queue_instances[i].dequeue()
-            wait_times[i].append(new_request.wait_time(current_second))
+            wait_times[i].append(new_request.wait_time(instance_time[i]))
             server_instances[i].start_next(new_request)
         average_wait = sum(wait_times[i]) / len(wait_times[i])
         print('Server Instance # %1d. Average wait time: %6.2f secs; %3d requests remaining' % (i+1, average_wait,queue_instances[i].size()))
         server_instances[i].tick()
+        instance_time[i] += 1
 
 def main(file_name, servers=0):
     if not servers:
